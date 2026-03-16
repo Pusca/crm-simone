@@ -1,0 +1,20 @@
+.sidebar-link {
+    display: block;
+    margin-bottom: 0.25rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: #cbd5e1;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.sidebar-link:hover {
+    background: #1e293b;
+    color: #ffffff;
+}
+
+.sidebar-link-active {
+    background: #334155;
+    color: #ffffff;
+    font-weight: 600;
+}
+

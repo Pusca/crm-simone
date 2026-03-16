@@ -1,0 +1,7 @@
+/config/config.local.php
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/uploads/quotes/*
+!/storage/uploads/quotes/.gitkeep
+Thumbs.db
+.DS_Store
