@@ -37,7 +37,7 @@ function config(?string $key = null, mixed $default = null): mixed
 
 function base_url(string $path = ''): string
 {
-    $base = rtrim((string) config('app.base_url', '/'), '/');
+    $base = rtrim(app_base_url(), '/');
     $path = ltrim($path, '/');
     if ($base === '') {
         $base = '/';
@@ -48,6 +48,20 @@ function base_url(string $path = ''): string
     }
 
     return $base . ($path !== '' ? '/' . $path : '');
+}
+
+function app_base_url(): string
+{
+    if (PHP_SAPI !== 'cli') {
+        $scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
+        if ($scriptName !== '') {
+            $base = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+            return $base === '' ? '/' : $base;
+        }
+    }
+
+    $configuredBase = rtrim((string) config('app.base_url', '/'), '/');
+    return $configuredBase === '' ? '/' : $configuredBase;
 }
 
 function e(null|string|int|float $value): string
@@ -100,8 +114,20 @@ function verify_csrf(?string $token): bool
 
 function is_active_path(string $path): bool
 {
-    $current = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $current = current_path();
     return str_starts_with($current, $path);
+}
+
+function current_path(): string
+{
+    $current = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $base = app_base_url();
+
+    if ($base !== '/' && str_starts_with($current, $base)) {
+        $current = substr($current, strlen($base));
+    }
+
+    return $current === '' ? '/' : $current;
 }
 
 function request_method(): string

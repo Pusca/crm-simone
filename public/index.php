@@ -109,12 +109,6 @@ $router->get('/users', [UserController::class, 'index'], ['auth' => true, 'role'
 $router->post('/users', [UserController::class, 'store'], ['auth' => true, 'role' => 'manager']);
 
 $requestMethod = request_method();
-$uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-
-$scriptBase = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
-if ($scriptBase !== '' && $scriptBase !== '/' && str_starts_with($uri, $scriptBase)) {
-    $uri = substr($uri, strlen($scriptBase));
-}
-$uri = $uri === '' ? '/' : $uri;
+$uri = current_path();
 
 $router->dispatch($requestMethod, $uri);

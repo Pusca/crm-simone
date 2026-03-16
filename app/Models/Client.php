@@ -133,18 +133,26 @@ final class Client extends BaseModel
 
     public static function timeline(int $clientId, array $currentUser): array
     {
-        $params = ['client_id' => $clientId];
+        $params = [
+            'activity_client_id' => $clientId,
+            'appointment_client_id' => $clientId,
+            'quote_client_id' => $clientId,
+            'sale_client_id' => $clientId,
+        ];
 
         $activityFilter = '';
         $appointmentFilter = '';
         $quoteFilter = '';
         $saleFilter = '';
         if ($currentUser['role'] === 'seller') {
-            $params['user_id'] = (int) $currentUser['id'];
-            $activityFilter = ' AND a.user_id = :user_id';
-            $appointmentFilter = ' AND ap.user_id = :user_id';
-            $quoteFilter = ' AND q.user_id = :user_id';
-            $saleFilter = ' AND s.user_id = :user_id';
+            $params['activity_user_id'] = (int) $currentUser['id'];
+            $params['appointment_user_id'] = (int) $currentUser['id'];
+            $params['quote_user_id'] = (int) $currentUser['id'];
+            $params['sale_user_id'] = (int) $currentUser['id'];
+            $activityFilter = ' AND a.user_id = :activity_user_id';
+            $appointmentFilter = ' AND ap.user_id = :appointment_user_id';
+            $quoteFilter = ' AND q.user_id = :quote_user_id';
+            $saleFilter = ' AND s.user_id = :sale_user_id';
         }
 
         $sql = "
@@ -158,7 +166,7 @@ final class Client extends BaseModel
                     u.name AS actor
                 FROM activities a
                 JOIN users u ON u.id = a.user_id
-                WHERE a.client_id = :client_id {$activityFilter}
+                WHERE a.client_id = :activity_client_id {$activityFilter}
                 UNION ALL
                 SELECT
                     ap.id,
@@ -169,7 +177,7 @@ final class Client extends BaseModel
                     u.name AS actor
                 FROM appointments ap
                 JOIN users u ON u.id = ap.user_id
-                WHERE ap.client_id = :client_id {$appointmentFilter}
+                WHERE ap.client_id = :appointment_client_id {$appointmentFilter}
                 UNION ALL
                 SELECT
                     q.id,
@@ -180,20 +188,20 @@ final class Client extends BaseModel
                     u.name AS actor
                 FROM quotes q
                 JOIN users u ON u.id = q.user_id
-                WHERE q.client_id = :client_id {$quoteFilter}
+                WHERE q.client_id = :quote_client_id {$quoteFilter}
                 UNION ALL
                 SELECT
                     s.id,
                     CONCAT(s.closed_at, ' 00:00:00') AS event_at,
                     'sale' AS event_type,
-                    CONCAT('Vendita: ', s.title, ' - €', FORMAT(s.amount, 2)) AS title,
+                    CONCAT('Vendita: ', s.title, ' - EUR ', FORMAT(s.amount, 2)) AS title,
                     s.notes AS description,
                     u.name AS actor
                 FROM sales s
                 JOIN users u ON u.id = s.user_id
-                WHERE s.client_id = :client_id {$saleFilter}
+                WHERE s.client_id = :sale_client_id {$saleFilter}
             ) t
-            ORDER BY event_at DESC
+            ORDER BY event_at DESC, id DESC
         ";
 
         $stmt = self::db()->prepare($sql);
