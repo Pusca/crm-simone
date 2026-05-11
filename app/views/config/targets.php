@@ -1,6 +1,6 @@
 <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
     <h2 class="mb-4 text-lg font-semibold">Wizard target venditore</h2>
-    <form method="post" action="<?= e(base_url('config/targets')) ?>" class="grid gap-3 md:grid-cols-3">
+    <form method="post" action="<?= e(base_url('settings/targets')) ?>" class="grid gap-3 md:grid-cols-3">
         <?= csrf_field() ?>
         <div>
             <label class="mb-1 block text-sm font-medium">Venditore *</label>
@@ -45,7 +45,7 @@
 </section>
 
 <section class="mt-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-    <form method="get" action="<?= e(base_url('config/targets')) ?>" class="mb-3 flex flex-wrap items-end gap-2">
+    <form method="get" action="<?= e(base_url('settings/targets')) ?>" class="mb-3 flex flex-wrap items-end gap-2">
         <div>
             <label class="mb-1 block text-xs uppercase text-slate-500">Venditore</label>
             <select name="user_id" class="rounded border border-slate-300 px-3 py-2 text-sm">
@@ -91,4 +91,3 @@
         </table>
     </div>
 </section>
-

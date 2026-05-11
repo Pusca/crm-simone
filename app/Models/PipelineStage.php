@@ -6,6 +6,14 @@ namespace App\Models;
 
 final class PipelineStage extends BaseModel
 {
+    public static function find(int $id): ?array
+    {
+        $stmt = self::db()->prepare('SELECT * FROM pipeline_stages WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $stage = $stmt->fetch();
+        return $stage ?: null;
+    }
+
     public static function all(): array
     {
         $stmt = self::db()->query('SELECT * FROM pipeline_stages ORDER BY sort_order ASC, id ASC');
@@ -55,4 +63,3 @@ final class PipelineStage extends BaseModel
         $stmt->execute(['id' => $id]);
     }
 }
-

@@ -71,6 +71,7 @@ final class QuoteController extends Controller
         $user = Auth::user();
 
         $data = $this->collectData($user);
+        $data = $this->normalizeSourceActivity($data, $user);
         $items = $this->collectItems();
 
         $errors = $this->validateData($data, $items, $user);
@@ -91,9 +92,15 @@ final class QuoteController extends Controller
         }
 
         $data['pdf_path'] = $pdfPath;
-        $data['amount'] = array_sum(array_map(static fn(array $i): float => (float) $i['amount'], $items));
+        $data['amount'] = array_sum(array_map(static fn(array $item): float => (float) $item['amount'], $items));
 
-        $quoteId = Quote::createWithItems($data, $items);
+        try {
+            $quoteId = Quote::createWithItems($data, $items);
+        } catch (\Throwable $exception) {
+            $this->deleteUploadedPdf($pdfPath);
+            throw $exception;
+        }
+
         set_flash('success', 'Preventivo creato.');
         $this->redirect('quotes/' . $quoteId);
     }
@@ -175,16 +182,16 @@ final class QuoteController extends Controller
             'description' => trim((string) $this->post('description', '')),
             'amount' => 0.0,
             'status' => (string) $this->post('status', 'draft'),
-            'sent_at' => (string) $this->post('sent_at', ''),
+            'sent_at' => $this->normalizeDateInput((string) $this->post('sent_at', '')),
             'pdf_path' => null,
         ];
     }
 
     private function collectItems(): array
     {
-        $categories = $_POST['item_category_id'] ?? [];
-        $descriptions = $_POST['item_description'] ?? [];
-        $amounts = $_POST['item_amount'] ?? [];
+        $categories = is_array($_POST['item_category_id'] ?? null) ? $_POST['item_category_id'] : [];
+        $descriptions = is_array($_POST['item_description'] ?? null) ? $_POST['item_description'] : [];
+        $amounts = is_array($_POST['item_amount'] ?? null) ? $_POST['item_amount'] : [];
 
         $items = [];
         $count = max(count($categories), count($descriptions), count($amounts));
@@ -211,12 +218,6 @@ final class QuoteController extends Controller
         } elseif (!Client::findAccessible($data['client_id'], $user)) {
             $errors[] = 'Cliente non accessibile.';
         }
-        if ($data['source_activity_id'] !== '') {
-            $activity = Activity::findAccessible((int) $data['source_activity_id'], $user);
-            if (!$activity) {
-                $errors[] = 'Attività sorgente non accessibile.';
-            }
-        }
         if ($data['title'] === '') {
             $errors[] = 'Titolo preventivo obbligatorio.';
         }
@@ -224,12 +225,45 @@ final class QuoteController extends Controller
             $errors[] = 'Status preventivo non valido.';
         }
         if ($data['status'] === 'sent' && $data['sent_at'] === '') {
-            $errors[] = 'Data invio obbligatoria se stato è sent.';
+            $errors[] = 'Data invio obbligatoria se stato e sent.';
+        }
+        if ($data['sent_at'] !== '' && $this->parseDateInput($data['sent_at']) === null) {
+            $errors[] = 'Data invio non valida.';
         }
         if (count($items) === 0) {
             $errors[] = 'Inserisci almeno una riga con categoria e importo.';
+        } else {
+            $activeCategoryIds = array_flip(array_map(
+                static fn(array $category): int => (int) $category['id'],
+                QuoteCategory::active()
+            ));
+            foreach ($items as $index => $item) {
+                if (!isset($activeCategoryIds[(int) $item['category_id']])) {
+                    $errors[] = 'Categoria preventivo non valida alla riga ' . ($index + 1) . '.';
+                    break;
+                }
+            }
         }
         return $errors;
+    }
+
+    private function normalizeSourceActivity(array $data, array $user): array
+    {
+        if ($data['source_activity_id'] === '') {
+            return $data;
+        }
+
+        $activity = Activity::findAccessible((int) $data['source_activity_id'], $user);
+        if (!$activity) {
+            $data['source_activity_id'] = '';
+            return $data;
+        }
+
+        if ((int) $activity['client_id'] !== (int) $data['client_id']) {
+            $data['source_activity_id'] = '';
+        }
+
+        return $data;
     }
 
     private function handlePdfUpload(?array $file): array
@@ -276,5 +310,28 @@ final class QuoteController extends Controller
 
         $relative = 'storage/uploads/quotes/' . $fileName;
         return [true, '', $relative];
+    }
+
+    private function deleteUploadedPdf(?string $pdfPath): void
+    {
+        if ($pdfPath === null || $pdfPath === '') {
+            return;
+        }
+
+        $uploadDir = realpath((string) config('paths.quote_uploads'));
+        if ($uploadDir === false) {
+            return;
+        }
+
+        $fileName = basename(str_replace('\\', '/', $pdfPath));
+        if ($fileName === '') {
+            return;
+        }
+
+        $fullPath = $uploadDir . DIRECTORY_SEPARATOR . $fileName;
+        $realPath = realpath($fullPath);
+        if ($realPath !== false && str_starts_with($realPath, $uploadDir . DIRECTORY_SEPARATOR) && is_file($realPath)) {
+            @unlink($realPath);
+        }
     }
 }

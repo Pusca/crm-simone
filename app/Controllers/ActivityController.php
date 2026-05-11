@@ -150,8 +150,8 @@ final class ActivityController extends Controller
             'stage_id' => (string) $this->post('stage_id', ''),
             'subject' => trim((string) $this->post('subject', '')),
             'body' => trim((string) $this->post('body', '')),
-            'occurred_at' => (string) $this->post('occurred_at', ''),
-            'next_action_at' => (string) $this->post('next_action_at', ''),
+            'occurred_at' => $this->normalizeDateTimeInput((string) $this->post('occurred_at', '')),
+            'next_action_at' => $this->normalizeDateTimeInput((string) $this->post('next_action_at', '')),
         ];
     }
 
@@ -160,6 +160,9 @@ final class ActivityController extends Controller
         $errors = [];
         if (!in_array($data['type'], ['call', 'email', 'whatsapp', 'meeting', 'other'], true)) {
             $errors[] = 'Tipo attività non valido.';
+        }
+        if ($data['stage_id'] !== '' && !PipelineStage::find((int) $data['stage_id'])) {
+            $errors[] = 'Stage pipeline non valido.';
         }
         if ($data['client_id'] <= 0) {
             $errors[] = 'Cliente obbligatorio.';
@@ -174,8 +177,12 @@ final class ActivityController extends Controller
         }
         if ($data['occurred_at'] === '') {
             $errors[] = 'Data/ora attività obbligatoria.';
+        } elseif ($this->parseDateTimeInput($data['occurred_at']) === null) {
+            $errors[] = 'Data/ora attività non valida.';
+        }
+        if ($data['next_action_at'] !== '' && $this->parseDateTimeInput($data['next_action_at']) === null) {
+            $errors[] = 'Prossima azione non valida.';
         }
         return $errors;
     }
 }
-

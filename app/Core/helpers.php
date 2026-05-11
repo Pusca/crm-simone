@@ -146,3 +146,18 @@ function selected(string|int|null $value, string|int|null $expected): string
 {
     return (string) $value === (string) $expected ? 'selected' : '';
 }
+
+function contact_role_options(): array
+{
+    return [
+        'owner' => 'Titolare',
+        'employee' => 'Dipendente',
+        'other' => 'Altro',
+    ];
+}
+
+function contact_role_label(?string $value): string
+{
+    $options = contact_role_options();
+    return $options[(string) $value] ?? '';
+}

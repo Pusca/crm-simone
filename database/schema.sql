@@ -28,8 +28,13 @@ CREATE TABLE clients (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     company_name VARCHAR(190) NOT NULL,
     contact_name VARCHAR(150) NOT NULL,
+    contact_role VARCHAR(30) NULL,
     email VARCHAR(190) NULL,
     phone VARCHAR(60) NULL,
+    secondary_contact_name VARCHAR(150) NULL,
+    secondary_contact_role VARCHAR(30) NULL,
+    second_email VARCHAR(190) NULL,
+    second_phone VARCHAR(60) NULL,
     address VARCHAR(255) NULL,
     website VARCHAR(255) NULL,
     notes TEXT NULL,
@@ -161,4 +166,3 @@ CREATE TABLE targets (
     INDEX idx_targets_lookup (period, metric, start_date, end_date),
     CONSTRAINT fk_targets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-

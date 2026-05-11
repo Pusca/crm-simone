@@ -3,11 +3,11 @@ $prevWeek = date('Y-m-d', strtotime($weekStart . ' -7 days'));
 $nextWeek = date('Y-m-d', strtotime($weekStart . ' +7 days'));
 ?>
 
-<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+<div class="no-print mb-4 flex flex-wrap items-center justify-between gap-3">
     <div class="flex items-center gap-2">
-        <a href="<?= e(base_url('appointments?week=' . $prevWeek)) ?>" class="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50">← Settimana prec.</a>
+        <a href="<?= e(base_url('appointments?week=' . $prevWeek)) ?>" class="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50">&lt; Settimana prec.</a>
         <a href="<?= e(base_url('appointments?week=' . date('Y-m-d'))) ?>" class="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50">Settimana corrente</a>
-        <a href="<?= e(base_url('appointments?week=' . $nextWeek)) ?>" class="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50">Sett. succ. →</a>
+        <a href="<?= e(base_url('appointments?week=' . $nextWeek)) ?>" class="rounded border border-slate-300 bg-white px-3 py-2 text-sm hover:bg-slate-50">Sett. succ. &gt;</a>
     </div>
     <div class="flex items-center gap-2">
         <p class="text-sm text-slate-600"><?= e($weekStart) ?> - <?= e($weekEnd) ?></p>
@@ -33,11 +33,12 @@ $nextWeek = date('Y-m-d', strtotime($weekStart . ' +7 days'));
                     <?php $items = $groupedAppointments[$day['date']][$hour] ?? []; ?>
                     <td class="h-20 border-r px-2 py-2">
                         <?php foreach ($items as $item): ?>
+                            <?php $appointmentLabel = $item['stage_name'] ?: $item['title']; ?>
                             <div class="mb-1 rounded border border-sky-200 bg-sky-50 p-2">
-                                <div class="font-medium text-sky-800"><?= e(substr($item['start_at'], 11, 5)) ?>-<?= e(substr($item['end_at'], 11, 5)) ?> <?= e($item['title']) ?></div>
+                                <div class="font-medium text-sky-800"><?= e(substr($item['start_at'], 11, 5)) ?>-<?= e(substr($item['end_at'], 11, 5)) ?> <?= e($appointmentLabel) ?></div>
                                 <div class="text-slate-700"><?= e($item['company_name']) ?></div>
                                 <div class="text-slate-500"><?= e($item['location']) ?></div>
-                                <a class="text-xs text-sky-700 underline" href="<?= e(base_url('appointments/' . $item['id'] . '/edit')) ?>">Modifica</a>
+                                <a class="no-print text-xs text-sky-700 underline" href="<?= e(base_url('appointments/' . $item['id'] . '/edit')) ?>">Modifica</a>
                             </div>
                         <?php endforeach; ?>
                     </td>
@@ -52,10 +53,11 @@ $nextWeek = date('Y-m-d', strtotime($weekStart . ' +7 days'));
     <h2 class="mb-3 text-lg font-semibold">Elenco appuntamenti settimana</h2>
     <div class="space-y-2">
         <?php foreach ($appointments as $appointment): ?>
+            <?php $appointmentLabel = $appointment['stage_name'] ?: $appointment['title']; ?>
             <article class="rounded border border-slate-200 p-3 text-sm">
-                <p class="font-medium"><?= e($appointment['title']) ?> - <?= e($appointment['company_name']) ?></p>
-                <p class="text-slate-600"><?= e($appointment['start_at']) ?> → <?= e($appointment['end_at']) ?> | <?= e($appointment['location']) ?></p>
-                <div class="mt-2 flex gap-2">
+                <p class="font-medium"><?= e($appointmentLabel) ?> - <?= e($appointment['company_name']) ?></p>
+                <p class="text-slate-600"><?= e($appointment['start_at']) ?> -> <?= e($appointment['end_at']) ?> | <?= e($appointment['location']) ?></p>
+                <div class="no-print mt-2 flex gap-2">
                     <a class="rounded bg-sky-100 px-2 py-1 text-sky-700 hover:bg-sky-200" href="<?= e(base_url('appointments/' . $appointment['id'] . '/edit')) ?>">Modifica</a>
                     <form method="post" action="<?= e(base_url('appointments/' . $appointment['id'] . '/delete')) ?>" onsubmit="return confirm('Eliminare appuntamento?');">
                         <?= csrf_field() ?>
@@ -69,4 +71,3 @@ $nextWeek = date('Y-m-d', strtotime($weekStart . ' +7 days'));
         <?php endif; ?>
     </div>
 </section>
-

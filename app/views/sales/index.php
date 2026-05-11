@@ -1,4 +1,4 @@
-<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+<div class="no-print mb-4 flex flex-wrap items-center justify-between gap-3">
     <form method="get" action="<?= e(base_url('sales')) ?>" class="flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <div>
             <label class="mb-1 block text-xs uppercase text-slate-500">Ricerca</label>
@@ -54,4 +54,3 @@
         </tbody>
     </table>
 </div>
-

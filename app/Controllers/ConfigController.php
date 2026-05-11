@@ -33,7 +33,7 @@ final class ConfigController extends Controller
         $isActive = $this->post('is_active', 0);
         if ($name === '') {
             set_flash('error', 'Nome stage obbligatorio.');
-            $this->redirect('config/pipeline');
+            $this->redirect('settings/pipeline');
         }
         PipelineStage::create([
             'name' => $name,
@@ -41,7 +41,7 @@ final class ConfigController extends Controller
             'is_active' => $isActive,
         ]);
         set_flash('success', 'Stage pipeline creato.');
-        $this->redirect('config/pipeline');
+        $this->redirect('settings/pipeline');
     }
 
     public function updatePipeline(string $id): void
@@ -51,7 +51,7 @@ final class ConfigController extends Controller
         $name = trim((string) $this->post('name', ''));
         if ($name === '') {
             set_flash('error', 'Nome stage obbligatorio.');
-            $this->redirect('config/pipeline');
+            $this->redirect('settings/pipeline');
         }
         PipelineStage::update((int) $id, [
             'name' => $name,
@@ -59,7 +59,7 @@ final class ConfigController extends Controller
             'is_active' => $this->post('is_active', 0),
         ]);
         set_flash('success', 'Stage aggiornato.');
-        $this->redirect('config/pipeline');
+        $this->redirect('settings/pipeline');
     }
 
     public function deletePipeline(string $id): void
@@ -72,7 +72,7 @@ final class ConfigController extends Controller
         } catch (Throwable) {
             set_flash('error', 'Impossibile eliminare stage: è già usato in attività/appuntamenti.');
         }
-        $this->redirect('config/pipeline');
+        $this->redirect('settings/pipeline');
     }
 
     public function categories(): void
@@ -92,7 +92,7 @@ final class ConfigController extends Controller
         $name = trim((string) $this->post('name', ''));
         if ($name === '') {
             set_flash('error', 'Nome categoria obbligatorio.');
-            $this->redirect('config/categories');
+            $this->redirect('settings/categories');
         }
         QuoteCategory::create([
             'name' => $name,
@@ -100,7 +100,7 @@ final class ConfigController extends Controller
             'is_active' => $this->post('is_active', 0),
         ]);
         set_flash('success', 'Categoria creata.');
-        $this->redirect('config/categories');
+        $this->redirect('settings/categories');
     }
 
     public function updateCategory(string $id): void
@@ -110,7 +110,7 @@ final class ConfigController extends Controller
         $name = trim((string) $this->post('name', ''));
         if ($name === '') {
             set_flash('error', 'Nome categoria obbligatorio.');
-            $this->redirect('config/categories');
+            $this->redirect('settings/categories');
         }
         QuoteCategory::update((int) $id, [
             'name' => $name,
@@ -118,7 +118,7 @@ final class ConfigController extends Controller
             'is_active' => $this->post('is_active', 0),
         ]);
         set_flash('success', 'Categoria aggiornata.');
-        $this->redirect('config/categories');
+        $this->redirect('settings/categories');
     }
 
     public function deleteCategory(string $id): void
@@ -131,7 +131,7 @@ final class ConfigController extends Controller
         } catch (Throwable) {
             set_flash('error', 'Impossibile eliminare categoria: è già usata in uno o più preventivi.');
         }
-        $this->redirect('config/categories');
+        $this->redirect('settings/categories');
     }
 
     public function targets(): void
@@ -159,8 +159,8 @@ final class ConfigController extends Controller
 
         $userId = (int) $this->post('user_id', 0);
         $period = (string) $this->post('period', 'weekly');
-        $startDate = (string) $this->post('start_date', '');
-        $endDate = (string) $this->post('end_date', '');
+        $startDate = $this->normalizeDateInput((string) $this->post('start_date', ''));
+        $endDate = $this->normalizeDateInput((string) $this->post('end_date', ''));
         $appointments = (int) $this->post('appointments_target', 0);
         $quotes = (int) $this->post('quotes_target', 0);
         $sales = (int) $this->post('sales_target', 0);
@@ -168,19 +168,31 @@ final class ConfigController extends Controller
         $errors = [];
         if ($userId <= 0) {
             $errors[] = 'Venditore obbligatorio.';
+        } else {
+            $targetUser = User::find($userId);
+            if (!$targetUser || $targetUser['role'] !== 'seller') {
+                $errors[] = 'Venditore non valido.';
+            }
         }
         if (!in_array($period, ['weekly', 'monthly'], true)) {
             $errors[] = 'Periodo target non valido.';
         }
+        if ($appointments < 0 || $quotes < 0 || $sales < 0) {
+            $errors[] = 'I target devono essere maggiori o uguali a zero.';
+        }
+        $start = $this->parseDateInput($startDate);
+        $end = $this->parseDateInput($endDate);
         if ($startDate === '' || $endDate === '') {
             $errors[] = 'Date inizio/fine obbligatorie.';
-        } elseif (strtotime($startDate) > strtotime($endDate)) {
+        } elseif ($start === null || $end === null) {
+            $errors[] = 'Date target non valide.';
+        } elseif ($start > $end) {
             $errors[] = 'La data fine deve essere uguale o successiva alla data inizio.';
         }
 
         if ($errors !== []) {
             set_flash('error', implode(' ', $errors));
-            $this->redirect('config/targets');
+            $this->redirect('settings/targets');
         }
 
         Target::createMany([
@@ -211,6 +223,6 @@ final class ConfigController extends Controller
         ]);
 
         set_flash('success', 'Target salvati.');
-        $this->redirect('config/targets');
+        $this->redirect('settings/targets');
     }
 }

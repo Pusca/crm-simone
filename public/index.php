@@ -96,14 +96,24 @@ $router->get('/config/pipeline', [ConfigController::class, 'pipeline'], ['auth' 
 $router->post('/config/pipeline', [ConfigController::class, 'storePipeline'], ['auth' => true, 'role' => 'manager']);
 $router->post('/config/pipeline/{id}/update', [ConfigController::class, 'updatePipeline'], ['auth' => true, 'role' => 'manager']);
 $router->post('/config/pipeline/{id}/delete', [ConfigController::class, 'deletePipeline'], ['auth' => true, 'role' => 'manager']);
+$router->get('/settings/pipeline', [ConfigController::class, 'pipeline'], ['auth' => true, 'role' => 'manager']);
+$router->post('/settings/pipeline', [ConfigController::class, 'storePipeline'], ['auth' => true, 'role' => 'manager']);
+$router->post('/settings/pipeline/{id}/update', [ConfigController::class, 'updatePipeline'], ['auth' => true, 'role' => 'manager']);
+$router->post('/settings/pipeline/{id}/delete', [ConfigController::class, 'deletePipeline'], ['auth' => true, 'role' => 'manager']);
 
 $router->get('/config/categories', [ConfigController::class, 'categories'], ['auth' => true, 'role' => 'manager']);
 $router->post('/config/categories', [ConfigController::class, 'storeCategory'], ['auth' => true, 'role' => 'manager']);
 $router->post('/config/categories/{id}/update', [ConfigController::class, 'updateCategory'], ['auth' => true, 'role' => 'manager']);
 $router->post('/config/categories/{id}/delete', [ConfigController::class, 'deleteCategory'], ['auth' => true, 'role' => 'manager']);
+$router->get('/settings/categories', [ConfigController::class, 'categories'], ['auth' => true, 'role' => 'manager']);
+$router->post('/settings/categories', [ConfigController::class, 'storeCategory'], ['auth' => true, 'role' => 'manager']);
+$router->post('/settings/categories/{id}/update', [ConfigController::class, 'updateCategory'], ['auth' => true, 'role' => 'manager']);
+$router->post('/settings/categories/{id}/delete', [ConfigController::class, 'deleteCategory'], ['auth' => true, 'role' => 'manager']);
 
 $router->get('/config/targets', [ConfigController::class, 'targets'], ['auth' => true, 'role' => 'manager']);
 $router->post('/config/targets', [ConfigController::class, 'storeTargets'], ['auth' => true, 'role' => 'manager']);
+$router->get('/settings/targets', [ConfigController::class, 'targets'], ['auth' => true, 'role' => 'manager']);
+$router->post('/settings/targets', [ConfigController::class, 'storeTargets'], ['auth' => true, 'role' => 'manager']);
 
 $router->get('/users', [UserController::class, 'index'], ['auth' => true, 'role' => 'manager']);
 $router->post('/users', [UserController::class, 'store'], ['auth' => true, 'role' => 'manager']);

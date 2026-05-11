@@ -4,7 +4,7 @@
         <div class="mt-3 space-y-2 text-sm">
             <p><span class="font-medium">Cliente:</span> <?= e($quote['company_name']) ?></p>
             <p><span class="font-medium">Seller:</span> <?= e($quote['seller_name']) ?></p>
-            <p><span class="font-medium">Importo totale:</span> € <?= e(number_format((float) $quote['amount'], 2, ',', '.')) ?></p>
+            <p><span class="font-medium">Importo totale:</span> EUR <?= e(number_format((float) $quote['amount'], 2, ',', '.')) ?></p>
             <p><span class="font-medium">Stato:</span> <span class="uppercase"><?= e($quote['status']) ?></span></p>
             <p><span class="font-medium">Creato il:</span> <?= e($quote['created_at']) ?></p>
             <p><span class="font-medium">Inviato il:</span> <?= e($quote['sent_at']) ?></p>
@@ -13,7 +13,7 @@
                 <p><a class="text-sky-700 underline" href="<?= e(base_url('quotes/' . $quote['id'] . '/pdf')) ?>">Apri PDF allegato</a></p>
             <?php endif; ?>
         </div>
-        <div class="mt-4 flex flex-wrap gap-2">
+        <div class="no-print mt-4 flex flex-wrap gap-2">
             <a href="<?= e(base_url('sales/create?quote_id=' . $quote['id'])) ?>" class="rounded bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-500">Converti in vendita</a>
             <a href="<?= e(base_url('quotes')) ?>" class="rounded border border-slate-300 px-3 py-2 text-sm hover:bg-slate-50">Torna lista</a>
         </div>
@@ -22,7 +22,7 @@
     <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:col-span-2">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
             <h2 class="text-lg font-semibold">Voci preventivo</h2>
-            <form method="post" action="<?= e(base_url('quotes/' . $quote['id'] . '/status')) ?>" class="flex items-center gap-2">
+            <form method="post" action="<?= e(base_url('quotes/' . $quote['id'] . '/status')) ?>" class="no-print flex items-center gap-2">
                 <?= csrf_field() ?>
                 <select name="status" class="rounded border border-slate-300 px-2 py-2 text-sm">
                     <?php foreach (['draft', 'sent', 'won', 'lost'] as $status): ?>
@@ -46,7 +46,7 @@
                     <tr class="border-b">
                         <td class="px-3 py-2"><?= e($item['category_name']) ?></td>
                         <td class="px-3 py-2"><?= e($item['description']) ?></td>
-                        <td class="px-3 py-2">€ <?= e(number_format((float) $item['amount'], 2, ',', '.')) ?></td>
+                        <td class="px-3 py-2">EUR <?= e(number_format((float) $item['amount'], 2, ',', '.')) ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -54,4 +54,3 @@
         </div>
     </section>
 </div>
-

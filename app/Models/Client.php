@@ -12,7 +12,7 @@ final class Client extends BaseModel
         $params = [];
 
         if (($filters['q'] ?? '') !== '') {
-            $where[] = '(c.company_name LIKE :q OR c.contact_name LIKE :q OR c.email LIKE :q OR c.phone LIKE :q)';
+            $where[] = '(c.company_name LIKE :q OR c.contact_name LIKE :q OR c.secondary_contact_name LIKE :q OR c.email LIKE :q OR c.second_email LIKE :q OR c.phone LIKE :q OR c.second_phone LIKE :q)';
             $params['q'] = '%' . trim((string) $filters['q']) . '%';
         }
 
@@ -64,15 +64,20 @@ final class Client extends BaseModel
     {
         $stmt = self::db()->prepare(
             'INSERT INTO clients
-            (company_name, contact_name, email, phone, address, website, notes, owner_user_id, is_shared, created_at)
+            (company_name, contact_name, contact_role, email, phone, secondary_contact_name, secondary_contact_role, second_email, second_phone, address, website, notes, owner_user_id, is_shared, created_at)
             VALUES
-            (:company_name, :contact_name, :email, :phone, :address, :website, :notes, :owner_user_id, :is_shared, NOW())'
+            (:company_name, :contact_name, :contact_role, :email, :phone, :secondary_contact_name, :secondary_contact_role, :second_email, :second_phone, :address, :website, :notes, :owner_user_id, :is_shared, NOW())'
         );
         $stmt->execute([
             'company_name' => $data['company_name'],
             'contact_name' => $data['contact_name'],
+            'contact_role' => $data['contact_role'] ?: null,
             'email' => $data['email'] ?: null,
             'phone' => $data['phone'] ?: null,
+            'secondary_contact_name' => $data['secondary_contact_name'] ?: null,
+            'secondary_contact_role' => $data['secondary_contact_role'] ?: null,
+            'second_email' => $data['secondary_email'] ?: null,
+            'second_phone' => $data['secondary_phone'] ?: null,
             'address' => $data['address'] ?: null,
             'website' => $data['website'] ?: null,
             'notes' => $data['notes'] ?: null,
@@ -88,8 +93,13 @@ final class Client extends BaseModel
             'UPDATE clients
              SET company_name = :company_name,
                  contact_name = :contact_name,
+                 contact_role = :contact_role,
                  email = :email,
                  phone = :phone,
+                 secondary_contact_name = :secondary_contact_name,
+                 secondary_contact_role = :secondary_contact_role,
+                 second_email = :second_email,
+                 second_phone = :second_phone,
                  address = :address,
                  website = :website,
                  notes = :notes,
@@ -101,8 +111,13 @@ final class Client extends BaseModel
             'id' => $id,
             'company_name' => $data['company_name'],
             'contact_name' => $data['contact_name'],
+            'contact_role' => $data['contact_role'] ?: null,
             'email' => $data['email'] ?: null,
             'phone' => $data['phone'] ?: null,
+            'secondary_contact_name' => $data['secondary_contact_name'] ?: null,
+            'secondary_contact_role' => $data['secondary_contact_role'] ?: null,
+            'second_email' => $data['secondary_email'] ?: null,
+            'second_phone' => $data['secondary_phone'] ?: null,
             'address' => $data['address'] ?: null,
             'website' => $data['website'] ?: null,
             'notes' => $data['notes'] ?: null,

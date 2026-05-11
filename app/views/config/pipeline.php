@@ -1,6 +1,6 @@
 <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
     <h2 class="mb-4 text-lg font-semibold">Nuovo stage pipeline</h2>
-    <form method="post" action="<?= e(base_url('config/pipeline')) ?>" class="grid gap-3 md:grid-cols-4">
+    <form method="post" action="<?= e(base_url('settings/pipeline')) ?>" class="grid gap-3 md:grid-cols-4">
         <?= csrf_field() ?>
         <input name="name" required placeholder="Nome stage" class="rounded border border-slate-300 px-3 py-2">
         <input type="number" name="sort_order" value="10" class="rounded border border-slate-300 px-3 py-2">
@@ -26,7 +26,7 @@
             <tr class="border-b">
                 <td class="px-3 py-2"><?= e((string) $stage['id']) ?></td>
                 <td class="px-3 py-2">
-                    <form method="post" action="<?= e(base_url('config/pipeline/' . $stage['id'] . '/update')) ?>" class="flex flex-wrap items-center gap-2">
+                    <form method="post" action="<?= e(base_url('settings/pipeline/' . $stage['id'] . '/update')) ?>" class="flex flex-wrap items-center gap-2">
                         <?= csrf_field() ?>
                         <input name="name" value="<?= e($stage['name']) ?>" class="rounded border border-slate-300 px-2 py-1">
                         <input type="number" name="sort_order" value="<?= e((string) $stage['sort_order']) ?>" class="w-20 rounded border border-slate-300 px-2 py-1">
@@ -37,7 +37,7 @@
                 <td class="px-3 py-2"><?= e((string) $stage['sort_order']) ?></td>
                 <td class="px-3 py-2"><?= (int) $stage['is_active'] === 1 ? 'Si' : 'No' ?></td>
                 <td class="px-3 py-2">
-                    <form method="post" action="<?= e(base_url('config/pipeline/' . $stage['id'] . '/delete')) ?>" onsubmit="return confirm('Eliminare stage?');">
+                    <form method="post" action="<?= e(base_url('settings/pipeline/' . $stage['id'] . '/delete')) ?>" onsubmit="return confirm('Eliminare stage?');">
                         <?= csrf_field() ?>
                         <button class="rounded bg-red-100 px-2 py-1 text-red-700 hover:bg-red-200" type="submit">Elimina</button>
                     </form>
@@ -47,4 +47,3 @@
         </tbody>
     </table>
 </section>
-

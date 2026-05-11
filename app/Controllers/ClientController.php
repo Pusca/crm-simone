@@ -177,8 +177,13 @@ final class ClientController extends Controller
         return [
             'company_name' => trim((string) $this->post('company_name', '')),
             'contact_name' => trim((string) $this->post('contact_name', '')),
+            'contact_role' => trim((string) $this->post('contact_role', '')),
             'email' => trim((string) $this->post('email', '')),
             'phone' => trim((string) $this->post('phone', '')),
+            'secondary_contact_name' => trim((string) $this->post('secondary_contact_name', '')),
+            'secondary_contact_role' => trim((string) $this->post('secondary_contact_role', '')),
+            'secondary_email' => trim((string) $this->post('secondary_email', '')),
+            'secondary_phone' => trim((string) $this->post('secondary_phone', '')),
             'address' => trim((string) $this->post('address', '')),
             'website' => trim((string) $this->post('website', '')),
             'notes' => trim((string) $this->post('notes', '')),
@@ -190,14 +195,32 @@ final class ClientController extends Controller
     private function validateClientData(array $data): array
     {
         $errors = [];
+        $contactRoles = array_keys(contact_role_options());
+
         if ($data['company_name'] === '') {
             $errors[] = 'Nome azienda obbligatorio.';
         }
         if ($data['contact_name'] === '') {
             $errors[] = 'Referente obbligatorio.';
         }
+        $owner = User::find((int) $data['owner_user_id']);
+        if (!$owner || !in_array($owner['role'], ['manager', 'seller'], true)) {
+            $errors[] = 'Owner non valido.';
+        }
+        if ($data['contact_role'] !== '' && !in_array($data['contact_role'], $contactRoles, true)) {
+            $errors[] = 'Ruolo referente non valido.';
+        }
         if ($data['email'] !== '' && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Email non valida.';
+        }
+        if ($data['secondary_contact_name'] === '' && ($data['secondary_contact_role'] !== '' || $data['secondary_email'] !== '' || $data['secondary_phone'] !== '')) {
+            $errors[] = 'Inserisci il nome del secondo referente.';
+        }
+        if ($data['secondary_contact_role'] !== '' && !in_array($data['secondary_contact_role'], $contactRoles, true)) {
+            $errors[] = 'Ruolo del secondo referente non valido.';
+        }
+        if ($data['secondary_email'] !== '' && !filter_var($data['secondary_email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = 'Email del secondo referente non valida.';
         }
         if ($data['website'] !== '' && !filter_var($data['website'], FILTER_VALIDATE_URL)) {
             $errors[] = 'Sito web non valido.';

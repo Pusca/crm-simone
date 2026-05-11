@@ -4,11 +4,16 @@ $itemCategories = $oldInput['item_category_id'] ?? [($categories[0]['id'] ?? '')
 $itemDescriptions = $oldInput['item_description'] ?? [''];
 $itemAmounts = $oldInput['item_amount'] ?? ['0.00'];
 $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmounts), 1);
+$sourceActivityId = (string) old('source_activity_id', ($prefillActivity ?? 0) > 0 ? (string) $prefillActivity : '');
 ?>
 
 <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
     <form method="post" action="<?= e(base_url('quotes')) ?>" enctype="multipart/form-data" class="space-y-4">
         <?= csrf_field() ?>
+        <?php if ($sourceActivityId !== ''): ?>
+            <input type="hidden" name="source_activity_id" value="<?= e($sourceActivityId) ?>">
+        <?php endif; ?>
+
         <div class="grid gap-4 md:grid-cols-2">
             <div>
                 <label class="mb-1 block text-sm font-medium">Cliente *</label>
@@ -19,10 +24,6 @@ $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmo
                         <option value="<?= e((string) $client['id']) ?>" <?= selected($selectedClient, $client['id']) ?>><?= e($client['company_name']) ?></option>
                     <?php endforeach; ?>
                 </select>
-            </div>
-            <div>
-                <label class="mb-1 block text-sm font-medium">Attività origine (opzionale)</label>
-                <input type="number" min="1" name="source_activity_id" value="<?= e((string) old('source_activity_id', $prefillActivity ?? '')) ?>" class="w-full rounded border border-slate-300 px-3 py-2" placeholder="ID attività">
             </div>
             <div>
                 <label class="mb-1 block text-sm font-medium">Titolo *</label>
@@ -45,6 +46,11 @@ $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmo
                 <input type="file" name="pdf_file" accept="application/pdf,.pdf" class="w-full rounded border border-slate-300 px-3 py-2">
                 <p class="mt-1 text-xs text-slate-500">Max 5MB, solo PDF.</p>
             </div>
+            <?php if ($sourceActivityId !== ''): ?>
+                <div class="rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-800">
+                    Questo preventivo verra collegato automaticamente all'attivita selezionata.
+                </div>
+            <?php endif; ?>
             <div class="md:col-span-2">
                 <label class="mb-1 block text-sm font-medium">Descrizione</label>
                 <textarea name="description" rows="3" class="w-full rounded border border-slate-300 px-3 py-2"><?= e((string) old('description')) ?></textarea>
@@ -52,7 +58,7 @@ $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmo
         </div>
 
         <section class="rounded border border-slate-200 p-4">
-            <div class="mb-3 flex items-center justify-between">
+            <div class="no-print mb-3 flex items-center justify-between">
                 <h2 class="text-lg font-semibold">Righe preventivo (macro-categorie)</h2>
                 <button id="addItemRow" type="button" class="rounded bg-slate-900 px-3 py-2 text-sm text-white hover:bg-slate-700">+ Aggiungi riga</button>
             </div>
@@ -77,7 +83,7 @@ $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmo
                             <label class="mb-1 block text-xs uppercase text-slate-500">Importo *</label>
                             <input step="0.01" type="number" min="0" name="item_amount[]" value="<?= e((string) ($itemAmounts[$i] ?? '0.00')) ?>" class="w-full rounded border border-slate-300 px-2 py-2 text-sm">
                         </div>
-                        <div class="md:col-span-1 flex items-end">
+                        <div class="no-print md:col-span-1 flex items-end">
                             <button type="button" class="remove-item w-full rounded bg-red-100 px-2 py-2 text-sm text-red-700 hover:bg-red-200">X</button>
                         </div>
                     </div>
@@ -85,7 +91,7 @@ $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmo
             </div>
         </section>
 
-        <div class="flex gap-2">
+        <div class="no-print flex gap-2">
             <button class="rounded bg-emerald-600 px-4 py-2 font-medium text-white hover:bg-emerald-500" type="submit">Salva preventivo</button>
             <a class="rounded border border-slate-300 px-4 py-2 hover:bg-slate-50" href="<?= e(base_url('quotes')) ?>">Annulla</a>
         </div>
@@ -110,7 +116,7 @@ $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmo
             <label class="mb-1 block text-xs uppercase text-slate-500">Importo *</label>
             <input step="0.01" type="number" min="0" name="item_amount[]" value="0.00" class="w-full rounded border border-slate-300 px-2 py-2 text-sm">
         </div>
-        <div class="md:col-span-1 flex items-end">
+        <div class="no-print md:col-span-1 flex items-end">
             <button type="button" class="remove-item w-full rounded bg-red-100 px-2 py-2 text-sm text-red-700 hover:bg-red-200">X</button>
         </div>
     </div>
@@ -129,4 +135,3 @@ $rowCount = max(count($itemCategories), count($itemDescriptions), count($itemAmo
         event.target.closest('.item-row').remove();
     });
 </script>
-

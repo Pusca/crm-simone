@@ -162,15 +162,17 @@ final class AppointmentController extends Controller
 
     private function collectData(array $user): array
     {
+        $stageId = (string) $this->post('stage_id', '');
+
         return [
             'client_id' => (int) $this->post('client_id', 0),
             'user_id' => (int) $user['id'],
-            'title' => trim((string) $this->post('title', '')),
+            'title' => $this->resolveTitle($stageId),
             'description' => trim((string) $this->post('description', '')),
-            'start_at' => (string) $this->post('start_at', ''),
-            'end_at' => (string) $this->post('end_at', ''),
+            'start_at' => $this->normalizeDateTimeInput((string) $this->post('start_at', '')),
+            'end_at' => $this->normalizeDateTimeInput((string) $this->post('end_at', '')),
             'location' => trim((string) $this->post('location', '')),
-            'stage_id' => (string) $this->post('stage_id', ''),
+            'stage_id' => $stageId,
         ];
     }
 
@@ -182,15 +184,34 @@ final class AppointmentController extends Controller
         } elseif (!Client::findAccessible($data['client_id'], $user)) {
             $errors[] = 'Cliente non accessibile.';
         }
-        if ($data['title'] === '') {
-            $errors[] = 'Titolo obbligatorio.';
+        if ($data['stage_id'] === '') {
+            $errors[] = 'Stage pipeline obbligatorio.';
+        } elseif (!PipelineStage::find((int) $data['stage_id'])) {
+            $errors[] = 'Stage pipeline non valido.';
         }
+        $start = $this->parseDateTimeInput($data['start_at']);
+        $end = $this->parseDateTimeInput($data['end_at']);
         if ($data['start_at'] === '' || $data['end_at'] === '') {
             $errors[] = 'Inizio e fine sono obbligatori.';
-        } elseif (strtotime($data['start_at']) >= strtotime($data['end_at'])) {
+        } elseif ($start === null || $end === null) {
+            $errors[] = 'Inizio o fine appuntamento non validi.';
+        } elseif ($start >= $end) {
             $errors[] = 'Fine appuntamento deve essere successiva all\'inizio.';
         }
         return $errors;
     }
-}
 
+    private function resolveTitle(string $stageId): string
+    {
+        if ($stageId === '') {
+            return 'Appuntamento';
+        }
+
+        $stage = PipelineStage::find((int) $stageId);
+        if ($stage && !empty($stage['name'])) {
+            return (string) $stage['name'];
+        }
+
+        return 'Appuntamento';
+    }
+}

@@ -1,4 +1,4 @@
-<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+<div class="no-print mb-4 flex flex-wrap items-center justify-between gap-3">
     <form method="get" action="<?= e(base_url('activities')) ?>" class="flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <div>
             <label class="mb-1 block text-xs uppercase text-slate-500">Tipo</label>
@@ -50,7 +50,7 @@
             <th class="px-3 py-2">Stage</th>
             <th class="px-3 py-2">Oggetto</th>
             <th class="px-3 py-2">Operatore</th>
-            <th class="px-3 py-2">Azioni</th>
+            <th class="no-print px-3 py-2">Azioni</th>
         </tr>
         </thead>
         <tbody>
@@ -60,7 +60,7 @@
                 <td class="px-3 py-2 uppercase"><?= e($activity['type']) ?></td>
                 <td class="px-3 py-2"><?= e($activity['company_name']) ?></td>
                 <td class="px-3 py-2"><?= e($activity['stage_name']) ?></td>
-                <td class="px-3 py-2">
+                <td class="no-print px-3 py-2">
                     <div class="font-medium"><?= e($activity['subject']) ?></div>
                     <div class="text-xs text-slate-500"><?= e($activity['body']) ?></div>
                 </td>
@@ -80,4 +80,3 @@
         </tbody>
     </table>
 </div>
-

@@ -2,44 +2,55 @@
 
 <div class="grid gap-4 md:grid-cols-3">
     <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:col-span-1">
-        <div class="mb-4">
+        <div class="no-print mb-4">
             <a class="text-sm font-medium text-slate-600 underline-offset-2 hover:text-slate-900 hover:underline" href="<?= e(base_url('clients')) ?>">Torna ai clienti</a>
         </div>
 
         <h2 class="text-lg font-semibold"><?= e($client['company_name']) ?></h2>
-        <div class="mt-3 space-y-2 text-sm">
-            <p><span class="font-medium">Referente:</span> <?= e($client['contact_name']) ?></p>
-            <p>
-                <span class="font-medium">Email:</span>
-                <?php if (!empty($client['email'])): ?>
-                    <a class="text-sky-700 underline-offset-2 hover:underline" href="mailto:<?= e($client['email']) ?>"><?= e($client['email']) ?></a>
-                <?php else: ?>
-                    -
-                <?php endif; ?>
-            </p>
-            <p>
-                <span class="font-medium">Telefono:</span>
-                <?php if (!empty($client['phone'])): ?>
-                    <a class="text-sky-700 underline-offset-2 hover:underline" href="tel:<?= e($client['phone']) ?>"><?= e($client['phone']) ?></a>
-                <?php else: ?>
-                    -
-                <?php endif; ?>
-            </p>
-            <p><span class="font-medium">Indirizzo:</span> <?= e($client['address'] ?: '-') ?></p>
-            <p>
-                <span class="font-medium">Sito:</span>
-                <?php if (!empty($client['website'])): ?>
-                    <a class="text-sky-700 underline-offset-2 hover:underline" href="<?= e($client['website']) ?>" target="_blank" rel="noreferrer"><?= e($client['website']) ?></a>
-                <?php else: ?>
-                    -
-                <?php endif; ?>
-            </p>
-            <p><span class="font-medium">Owner:</span> <?= e($client['owner_name']) ?></p>
-            <p><span class="font-medium">Condiviso:</span> <?= ((int) $client['is_shared'] === 1) ? 'Si' : 'No' ?></p>
-            <p><span class="font-medium">Note:</span><br><?= nl2br(e($client['notes'] ?: '-')) ?></p>
+        <div class="mt-4 space-y-4 text-sm">
+            <div>
+                <p class="font-medium text-slate-900">Referente principale</p>
+                <p>
+                    <?= e($client['contact_name']) ?>
+                    <?php if (!empty($client['contact_role'])): ?>
+                        (<?= e(contact_role_label($client['contact_role'])) ?>)
+                    <?php endif; ?>
+                </p>
+                <p>Email: <?= !empty($client['email']) ? e($client['email']) : '-' ?></p>
+                <p>Telefono: <?= !empty($client['phone']) ? e($client['phone']) : '-' ?></p>
+            </div>
+
+            <?php if (!empty($client['secondary_contact_name']) || !empty($client['second_email']) || !empty($client['second_phone'])): ?>
+                <div>
+                    <p class="font-medium text-slate-900">Secondo referente</p>
+                    <p>
+                        <?= e($client['secondary_contact_name'] ?: '-') ?>
+                        <?php if (!empty($client['secondary_contact_role'])): ?>
+                            (<?= e(contact_role_label($client['secondary_contact_role'])) ?>)
+                        <?php endif; ?>
+                    </p>
+                    <p>Email: <?= !empty($client['second_email']) ? e($client['second_email']) : '-' ?></p>
+                    <p>Telefono: <?= !empty($client['second_phone']) ? e($client['second_phone']) : '-' ?></p>
+                </div>
+            <?php endif; ?>
+
+            <div>
+                <p><span class="font-medium">Indirizzo:</span> <?= e($client['address'] ?: '-') ?></p>
+                <p>
+                    <span class="font-medium">Sito:</span>
+                    <?php if (!empty($client['website'])): ?>
+                        <a class="text-sky-700 underline-offset-2 hover:underline" href="<?= e($client['website']) ?>" target="_blank" rel="noreferrer"><?= e($client['website']) ?></a>
+                    <?php else: ?>
+                        -
+                    <?php endif; ?>
+                </p>
+                <p><span class="font-medium">Owner:</span> <?= e($client['owner_name']) ?></p>
+                <p><span class="font-medium">Condiviso:</span> <?= ((int) $client['is_shared'] === 1) ? 'Si' : 'No' ?></p>
+                <p><span class="font-medium">Note:</span><br><?= nl2br(e($client['notes'] ?: '-')) ?></p>
+            </div>
         </div>
 
-        <div class="mt-4 flex flex-wrap gap-2">
+        <div class="no-print mt-4 flex flex-wrap gap-2">
             <?php $viewer = \App\Core\Auth::user(); ?>
             <?php $canEditClient = $viewer && (($viewer['role'] === 'manager') || ((int) $viewer['id'] === (int) $client['owner_user_id'])); ?>
             <?php if ($canEditClient): ?>
@@ -65,7 +76,7 @@
                         Lo storico di questo cliente si popola automaticamente quando registri attivita, appuntamenti,
                         preventivi e vendite collegate a questa anagrafica.
                     </p>
-                    <div class="mt-4 flex flex-wrap gap-2">
+                    <div class="no-print mt-4 flex flex-wrap gap-2">
                         <a class="rounded bg-violet-600 px-3 py-2 text-sm text-white hover:bg-violet-500" href="<?= e(base_url('activities/create?client_id=' . $client['id'])) ?>">Registra attivita</a>
                         <a class="rounded bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-500" href="<?= e(base_url('appointments/create?client_id=' . $client['id'])) ?>">Crea appuntamento</a>
                         <a class="rounded bg-amber-500 px-3 py-2 text-sm text-white hover:bg-amber-400" href="<?= e(base_url('quotes/create?client_id=' . $client['id'])) ?>">Crea preventivo</a>

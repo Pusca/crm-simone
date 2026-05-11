@@ -1,8 +1,8 @@
-<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+<div class="no-print mb-4 flex flex-wrap items-center justify-between gap-3">
     <form method="get" action="<?= e(base_url('clients')) ?>" class="flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <div>
             <label class="mb-1 block text-xs font-medium uppercase text-slate-500">Ricerca</label>
-            <input type="text" name="q" value="<?= e($filters['q'] ?? '') ?>" placeholder="Azienda, referente, email..." class="rounded border border-slate-300 px-3 py-2 text-sm">
+            <input type="text" name="q" value="<?= e($filters['q'] ?? '') ?>" placeholder="Azienda, referenti, email..." class="rounded border border-slate-300 px-3 py-2 text-sm">
         </div>
         <?php if (($currentUser['role'] ?? 'seller') === 'manager'): ?>
             <div>
@@ -31,7 +31,20 @@
                     <a class="text-base font-semibold text-slate-900 underline-offset-2 hover:underline" href="<?= e(base_url('clients/' . $client['id'])) ?>">
                         <?= e($client['company_name']) ?>
                     </a>
-                    <p class="mt-1 text-sm text-slate-600"><?= e($client['contact_name']) ?></p>
+                    <p class="mt-1 text-sm text-slate-600">
+                        <?= e($client['contact_name']) ?>
+                        <?php if (!empty($client['contact_role'])): ?>
+                            (<?= e(contact_role_label($client['contact_role'])) ?>)
+                        <?php endif; ?>
+                    </p>
+                    <?php if (!empty($client['secondary_contact_name'])): ?>
+                        <p class="text-sm text-slate-500">
+                            <?= e($client['secondary_contact_name']) ?>
+                            <?php if (!empty($client['secondary_contact_role'])): ?>
+                                (<?= e(contact_role_label($client['secondary_contact_role'])) ?>)
+                            <?php endif; ?>
+                        </p>
+                    <?php endif; ?>
                 </div>
                 <span class="rounded bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
                     <?= ((int) $client['is_shared'] === 1) ? 'Condiviso' : 'Privato' ?>
@@ -39,12 +52,15 @@
             </div>
 
             <div class="mt-3 space-y-1 text-sm text-slate-600">
-                <p><span class="font-medium text-slate-800">Email:</span> <?= e($client['email'] ?: '-') ?></p>
-                <p><span class="font-medium text-slate-800">Telefono:</span> <?= e($client['phone'] ?: '-') ?></p>
+                <p><span class="font-medium text-slate-800">Email principale:</span> <?= e($client['email'] ?: '-') ?></p>
+                <p><span class="font-medium text-slate-800">Telefono principale:</span> <?= e($client['phone'] ?: '-') ?></p>
+                <?php if (!empty($client['second_email']) || !empty($client['second_phone'])): ?>
+                    <p><span class="font-medium text-slate-800">Secondo contatto:</span> <?= e($client['second_email'] ?: '-') ?> / <?= e($client['second_phone'] ?: '-') ?></p>
+                <?php endif; ?>
                 <p><span class="font-medium text-slate-800">Owner:</span> <?= e($client['owner_name']) ?></p>
             </div>
 
-            <div class="mt-4 flex flex-wrap gap-2">
+            <div class="no-print mt-4 flex flex-wrap gap-2">
                 <a class="rounded bg-slate-900 px-3 py-2 text-sm text-white hover:bg-slate-700" href="<?= e(base_url('clients/' . $client['id'])) ?>">Apri dettaglio</a>
                 <?php if ($canEditClient): ?>
                     <a class="rounded bg-sky-100 px-3 py-2 text-sm text-sky-700 hover:bg-sky-200" href="<?= e(base_url('clients/' . $client['id'] . '/edit')) ?>">Modifica</a>
@@ -65,30 +81,49 @@
         <thead>
         <tr class="border-b bg-slate-50 text-left">
             <th class="px-3 py-2">Azienda</th>
-            <th class="px-3 py-2">Referente</th>
+            <th class="px-3 py-2">Referenti</th>
             <th class="px-3 py-2">Contatti</th>
             <th class="px-3 py-2">Owner</th>
             <th class="px-3 py-2">Condiviso</th>
-            <th class="px-3 py-2">Azioni</th>
+            <th class="no-print px-3 py-2">Azioni</th>
         </tr>
         </thead>
         <tbody>
         <?php foreach ($clients as $client): ?>
             <?php $canEditClient = ($currentUser['role'] === 'manager') || ((int) $client['owner_user_id'] === (int) $currentUser['id']); ?>
-            <tr class="border-b">
+            <tr class="border-b align-top">
                 <td class="px-3 py-2 font-medium">
                     <a class="underline-offset-2 hover:underline" href="<?= e(base_url('clients/' . $client['id'])) ?>">
                         <?= e($client['company_name']) ?>
                     </a>
                 </td>
-                <td class="px-3 py-2"><?= e($client['contact_name']) ?></td>
                 <td class="px-3 py-2">
-                    <div><?= e($client['email']) ?></div>
-                    <div class="text-slate-500"><?= e($client['phone']) ?></div>
+                    <div>
+                        <?= e($client['contact_name']) ?>
+                        <?php if (!empty($client['contact_role'])): ?>
+                            <span class="text-slate-500">(<?= e(contact_role_label($client['contact_role'])) ?>)</span>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (!empty($client['secondary_contact_name'])): ?>
+                        <div class="text-slate-500">
+                            <?= e($client['secondary_contact_name']) ?>
+                            <?php if (!empty($client['secondary_contact_role'])): ?>
+                                (<?= e(contact_role_label($client['secondary_contact_role'])) ?>)
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                </td>
+                <td class="px-3 py-2">
+                    <div><?= e($client['email'] ?: '-') ?></div>
+                    <div class="text-slate-500"><?= e($client['phone'] ?: '-') ?></div>
+                    <?php if (!empty($client['second_email']) || !empty($client['second_phone'])): ?>
+                        <div class="mt-2 border-t border-slate-100 pt-2 text-slate-500"><?= e($client['second_email'] ?: '-') ?></div>
+                        <div class="text-slate-500"><?= e($client['second_phone'] ?: '-') ?></div>
+                    <?php endif; ?>
                 </td>
                 <td class="px-3 py-2"><?= e($client['owner_name']) ?></td>
                 <td class="px-3 py-2"><?= ((int) $client['is_shared'] === 1) ? 'Si' : 'No' ?></td>
-                <td class="px-3 py-2">
+                <td class="no-print px-3 py-2">
                     <div class="flex flex-wrap gap-1">
                         <a class="rounded bg-slate-100 px-2 py-1 hover:bg-slate-200" href="<?= e(base_url('clients/' . $client['id'])) ?>">Dettaglio</a>
                         <?php if ($canEditClient): ?>

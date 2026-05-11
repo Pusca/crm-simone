@@ -67,7 +67,7 @@ final class SaleController extends Controller
             'quote_id' => (string) $this->post('quote_id', ''),
             'title' => trim((string) $this->post('title', '')),
             'amount' => (float) $this->post('amount', 0),
-            'closed_at' => (string) $this->post('closed_at', date('Y-m-d')),
+            'closed_at' => $this->normalizeDateInput((string) $this->post('closed_at', date('Y-m-d'))),
             'notes' => trim((string) $this->post('notes', '')),
         ];
 
@@ -81,12 +81,17 @@ final class SaleController extends Controller
         if ($data['amount'] <= 0) {
             $errors[] = 'Importo vendita deve essere > 0.';
         }
+        if ($data['closed_at'] === '' || $this->parseDateInput($data['closed_at']) === null) {
+            $errors[] = 'Data chiusura non valida.';
+        }
 
         $quote = null;
         if ($data['quote_id'] !== '') {
             $quote = Quote::findAccessible((int) $data['quote_id'], $user);
             if (!$quote) {
                 $errors[] = 'Preventivo associato non accessibile.';
+            } elseif ((int) $quote['client_id'] !== (int) $data['client_id']) {
+                $errors[] = 'Il preventivo associato non appartiene al cliente selezionato.';
             }
         }
 
@@ -96,7 +101,7 @@ final class SaleController extends Controller
             $this->redirect('sales/create');
         }
 
-        $saleId = Sale::create($data);
+        Sale::create($data);
         if ($quote) {
             Quote::updateStatus((int) $data['quote_id'], 'won');
         }
@@ -105,4 +110,3 @@ final class SaleController extends Controller
         $this->redirect('sales');
     }
 }
-

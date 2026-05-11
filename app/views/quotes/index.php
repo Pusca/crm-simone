@@ -1,4 +1,4 @@
-<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+<div class="no-print mb-4 flex flex-wrap items-center justify-between gap-3">
     <form method="get" action="<?= e(base_url('quotes')) ?>" class="flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <div>
             <label class="mb-1 block text-xs uppercase text-slate-500">Ricerca</label>
@@ -37,7 +37,7 @@
             <th class="px-3 py-2">Importo</th>
             <th class="px-3 py-2">Stato</th>
             <th class="px-3 py-2">Seller</th>
-            <th class="px-3 py-2">Azioni</th>
+            <th class="no-print px-3 py-2">Azioni</th>
         </tr>
         </thead>
         <tbody>
@@ -46,10 +46,10 @@
                 <td class="px-3 py-2"><?= e(substr($quote['created_at'], 0, 10)) ?></td>
                 <td class="px-3 py-2 font-medium"><?= e($quote['title']) ?></td>
                 <td class="px-3 py-2"><?= e($quote['company_name']) ?></td>
-                <td class="px-3 py-2">€ <?= e(number_format((float) $quote['amount'], 2, ',', '.')) ?></td>
+                <td class="px-3 py-2">EUR <?= e(number_format((float) $quote['amount'], 2, ',', '.')) ?></td>
                 <td class="px-3 py-2 uppercase"><?= e($quote['status']) ?></td>
                 <td class="px-3 py-2"><?= e($quote['seller_name']) ?></td>
-                <td class="px-3 py-2">
+                <td class="no-print px-3 py-2">
                     <a class="rounded bg-slate-100 px-2 py-1 hover:bg-slate-200" href="<?= e(base_url('quotes/' . $quote['id'])) ?>">Dettaglio</a>
                 </td>
             </tr>
@@ -57,4 +57,3 @@
         </tbody>
     </table>
 </div>
-
